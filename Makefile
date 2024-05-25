@@ -21,6 +21,17 @@ TAR_FILE				:= $(UNTAR_DIR).tar.xz
 
 LINUX_PATH				:= $(abspath ./linux)
 
+ifeq ($(shell uname -m), x86_64)
+	ARCH := x86
+else ifeq ($(shell uname -m), aarch64)
+	ARCH := arm64
+else ifeq ($(shell uname -m), riscv64)
+	ARCH := riscv
+endif
+
+# Override current architecture
+ARCH := riscv
+
 # hide output unless V=1
 ifeq ($(V),1)
 	Q =
@@ -51,7 +62,7 @@ $(LINUX_PATH):
 
 cscope.files: $(LINUX_PATH)
 	find  $(LINUX_PATH)                                                            \
-		-path "$(LINUX_PATH)/arch/*" ! -path "$(LINUX_PATH)/arch/riscv*" -prune -o \
+		-path "$(LINUX_PATH)/arch/*" ! -path "$(LINUX_PATH)/arch/$(ARCH)*" -prune -o \
 		-path "$(LINUX_PATH)/tmp*" -prune -o                                       \
 		-path "$(LINUX_PATH)/Documentation*" -prune -o                             \
 		-path "$(LINUX_PATH)/scripts*" -prune -o                                   \
