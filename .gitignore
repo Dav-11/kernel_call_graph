@@ -1,0 +1,15 @@
+# MacOS
+.DS_Store
+
+# IDEs
+.vscode
+.idea
+.zed
+
+# Linux source
+linux
+
+# Build files
+*.png
+*.dot
+cscope.*
