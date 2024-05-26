@@ -6,25 +6,31 @@ def gen_db():
 
 def print_called_functions(function_name, dot_file, visited=set()):
 
-    # Create a local set for the current call
-    local_visited = visited #| {function_name}  # Union of visited and the current function
-    print(function_name)
+    if function_name not in visited:
+        
+        visited = visited | {function_name}  # Union of visited and the current function
+        print(function_name)
 
-    result = subprocess.run(['cscope', '-d', '-L', '-2', function_name], stdout=subprocess.PIPE, text=True)
-    lines = result.stdout.splitlines()
+        result = subprocess.run(['cscope', '-d', '-L', '-2', function_name], stdout=subprocess.PIPE, text=True)
+        lines = result.stdout.splitlines()
 
-    for line in lines:
-        # Assuming cscope output format: <function> <filename> <line> <text>
-        parts = line.split()
-        if len(parts) >= 4:
-            called_function = parts[1]
-            
-            # Recursive call only if the called function has not been visited in this path
-            if called_function not in local_visited:
+        # create array to avoid repeating the same link if func is called more than once
+        called = set()
+
+        for line in lines:
+            # Assuming cscope output format: <function> <filename> <line> <text>
+            parts = line.split()
+
+            if len(parts) >= 4 and parts[1] not in called:
+                called_function = parts[1]
+                
+                # Recursive call only if the called function has not been visited in this path
                 dot_file.write(f'    "{function_name}" -> "{called_function}";\n')
-                local_visited = local_visited | {called_function}  # Union of visited and the current function
-                print_called_functions(called_function, dot_file, local_visited)
-            
+
+                # add func to called
+                called = called | {called_function}
+                print_called_functions(called_function, dot_file, visited)
+
 
 def generate_opening(dot_file):
     dot_file.write("digraph G {\n")
