@@ -41,30 +41,40 @@ def generate_opening(dot_file):
 def generate_closing(dot_file):
         dot_file.write("}\n")
 
-function_name = "bpf_int_jit_compile"  # Replace with your starting function
+def main():
 
-print("Generating cscope DB...")
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Generate call graph for a function using Cscope and Graphviz.')
+    parser.add_argument('-f', '--function', type=str, default='bpf_int_jit_compile', help='The starting function name for generating the call graph (default: bpf_int_jit_compile).')
+    args = parser.parse_args()
 
-# gen DB
-gen_db()
+    function_name = args.function_name  # Replace with your starting function
 
-print(f'Generating Dot file for func {function_name}...')
+    print("Generating cscope DB...")
 
-# open file
-with open("callgraph.dot", "w") as dot_file:
-    
-    # gen opening
-    generate_opening(dot_file)
+    # gen DB
+    gen_db()
 
-    # gen call graphs
-    print_called_functions(function_name, dot_file)
+    print(f'Generating Dot file for func {function_name}...')
 
-    # gen closing
-    generate_closing(dot_file)
+    # open file
+    with open("callgraph.dot", "w") as dot_file:
+        
+        # gen opening
+        generate_opening(dot_file)
 
-print("Generating SVG from the Dot file...")
+        # gen call graphs
+        print_called_functions(function_name, dot_file)
 
-# Generate SVG from the Dot file
-subprocess.run(['dot', '-Tsvg', 'callgraph.dot', '-o', 'callgraph.svg'], stdout=subprocess.PIPE, text=True)
+        # gen closing
+        generate_closing(dot_file)
 
-print("SVG generated!")
+    print("Generating SVG from the Dot file...")
+
+    # Generate SVG from the Dot file
+    subprocess.run(['dot', '-Tsvg', 'callgraph.dot', '-o', 'callgraph.svg'], stdout=subprocess.PIPE, text=True)
+
+    print("SVG generated!")
+
+if __name__ == '__main__':
+    main()
