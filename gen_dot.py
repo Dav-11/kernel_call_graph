@@ -21,7 +21,7 @@ def print_called_functions(function_name, dot_file):
         called = set()
 
         for line in lines:
-            # Assuming cscope output format: <function> <filename> <line> <text>
+            
             parts = line.split()
 
             if len(parts) >= 4 and parts[1] not in called:
@@ -43,8 +43,12 @@ def generate_closing(dot_file):
 
 function_name = "bpf_int_jit_compile"  # Replace with your starting function
 
+print("Generating cscope DB...")
+
 # gen DB
 gen_db()
+
+print(f'Generating Dot file for func {function_name}...')
 
 # open file
 with open("callgraph.dot", "w") as dot_file:
@@ -52,10 +56,15 @@ with open("callgraph.dot", "w") as dot_file:
     # gen opening
     generate_opening(dot_file)
 
-    
-    
     # gen call graphs
     print_called_functions(function_name, dot_file)
 
     # gen closing
     generate_closing(dot_file)
+
+print("Generating SVG from the Dot file...")
+
+# Generate SVG from the Dot file
+subprocess.run(['dot', '-Tsvg', 'callgraph.dot', '-o', 'callgraph.svg'], stdout=subprocess.PIPE, text=True)
+
+print("SVG generated!")
