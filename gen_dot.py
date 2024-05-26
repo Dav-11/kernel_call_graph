@@ -1,14 +1,17 @@
 import os
 import subprocess
 
+# init visited array
+visited = set()
+
 def gen_db():
     subprocess.run(['cscope', '-b', '-q', '-k'], stdout=subprocess.PIPE, text=True)
 
-def print_called_functions(function_name, dot_file, visited=set()):
+def print_called_functions(function_name, dot_file):
 
     if function_name not in visited:
         
-        visited = visited | {function_name}  # Union of visited and the current function
+        visited.add(function_name)  # Union of visited and the current function
         print(function_name)
 
         result = subprocess.run(['cscope', '-d', '-L', '-2', function_name], stdout=subprocess.PIPE, text=True)
@@ -29,7 +32,7 @@ def print_called_functions(function_name, dot_file, visited=set()):
 
                 # add func to called
                 called = called | {called_function}
-                print_called_functions(called_function, dot_file, visited)
+                print_called_functions(called_function, dot_file)
 
 
 def generate_opening(dot_file):
@@ -48,6 +51,8 @@ with open("callgraph.dot", "w") as dot_file:
     
     # gen opening
     generate_opening(dot_file)
+
+    
     
     # gen call graphs
     print_called_functions(function_name, dot_file)
